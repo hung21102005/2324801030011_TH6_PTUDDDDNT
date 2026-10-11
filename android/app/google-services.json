@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "962920721086",
+    "project_id": "th6-ptuddddnt-udnghenhaconline",
+    "storage_bucket": "th6-ptuddddnt-udnghenhaconline.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:962920721086:android:1dd99d4828d0afcc15ccef",
+        "android_client_info": {
+          "package_name": "com.example.ung_dung_nghe_nhac_online"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCyQJXc2Bbuquq87o3KyGsiAso2cTrYl4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:962920721086:android:a613a48fe8afc9b215ccef",
+        "android_client_info": {
+          "package_name": "com.example.ungdung_nghe_nhac_online"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCyQJXc2Bbuquq87o3KyGsiAso2cTrYl4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

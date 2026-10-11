@@ -1,0 +1,100 @@
+import '../../data/models/song_model.dart';
+
+class AppConstants {
+  static const String appName = 'VibeMusic';
+
+  // Curated list of high quality songs with real working MP3 streams & gorgeous album art
+  static final List<SongModel> mockSongs = [
+    const SongModel(
+      id: 'song_1',
+      title: 'Midnight City Lights',
+      artist: 'Aero Chord & Melodic',
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&auto=format&fit=crop&q=80',
+      duration: 372,
+      genre: 'Chill / EDM',
+      album: 'Neon Dreams',
+    ),
+    const SongModel(
+      id: 'song_2',
+      title: 'Echoes of Sunset',
+      artist: 'Lunar Horizon',
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&auto=format&fit=crop&q=80',
+      duration: 423,
+      genre: 'Acoustic',
+      album: 'Golden Hour',
+    ),
+    const SongModel(
+      id: 'song_3',
+      title: 'Starlight Symphony',
+      artist: 'Celeste & The Orchestra',
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&auto=format&fit=crop&q=80',
+      duration: 345,
+      genre: 'Classical Fusion',
+      album: 'Cosmic Journey',
+    ),
+    const SongModel(
+      id: 'song_4',
+      title: 'Cyberpunk Drive',
+      artist: 'Synthwave Knight',
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=600&auto=format&fit=crop&q=80',
+      duration: 302,
+      genre: 'Synthwave',
+      album: 'Retro Future 2099',
+    ),
+    const SongModel(
+      id: 'song_5',
+      title: 'Rainy Cafe Moments',
+      artist: 'Coffee & Lo-Fi Beats',
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=600&auto=format&fit=crop&q=80',
+      duration: 320,
+      genre: 'Lo-Fi Chill',
+      album: 'Rainy Afternoons',
+    ),
+    const SongModel(
+      id: 'song_6',
+      title: 'Velvet Groove',
+      artist: 'Soulful Jazz Collective',
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=600&auto=format&fit=crop&q=80',
+      duration: 285,
+      genre: 'Jazz / R&B',
+      album: 'Blue Note Vibes',
+    ),
+    const SongModel(
+      id: 'song_7',
+      title: 'Electric Passion',
+      artist: 'Nova & Pulse',
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&auto=format&fit=crop&q=80',
+      duration: 390,
+      genre: 'Pop / Dance',
+      album: 'After Party',
+    ),
+    const SongModel(
+      id: 'song_8',
+      title: 'Deep Meditation',
+      artist: 'Serenity Project',
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1445985543469-433ecba62447?w=600&auto=format&fit=crop&q=80',
+      duration: 412,
+      genre: 'Ambient',
+      album: 'Mind & Peace',
+    ),
+  ];
+
+  static const List<String> musicGenres = [
+    'Tất cả',
+    'Chill / EDM',
+    'Acoustic',
+    'Synthwave',
+    'Lo-Fi Chill',
+    'Pop / Dance',
+    'Jazz / R&B',
+    'Ambient',
+  ];
+}
