@@ -38,13 +38,15 @@ class SongRepository {
   Future<List<SongModel>> getAllSongs({String? currentUserId}) async {
     if (_firestore != null) {
       try {
-        await _seedFirestoreIfEmpty();
-        final snapshot = await _firestore.collection('songs').get();
+        await _seedFirestoreIfEmpty().timeout(const Duration(seconds: 3));
+        final snapshot = await _firestore.collection('songs').get().timeout(const Duration(seconds: 4));
         if (snapshot.docs.isNotEmpty) {
           final songs = snapshot.docs.map((doc) {
             return SongModel.fromMap(doc.data(), doc.id);
           }).toList();
-          _catalogSongs = songs;
+          if (songs.isNotEmpty) {
+            _catalogSongs = songs;
+          }
         }
       } catch (_) {
         // Use local fallback
@@ -52,7 +54,10 @@ class SongRepository {
     }
 
     // Attach favorite status strictly for currentUserId
-    final favIds = await getFavoriteSongIds(currentUserId);
+    final favIds = await getFavoriteSongIds(currentUserId).timeout(
+      const Duration(seconds: 3),
+      onTimeout: () => {},
+    );
     return _catalogSongs.map((s) => s.copyWith(isFavorite: favIds.contains(s.id))).toList();
   }
 
