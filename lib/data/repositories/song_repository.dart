@@ -18,7 +18,7 @@ class SongRepository {
   final Map<String, List<PlaylistModel>> _userPlaylists = {};
 
   // Seed Firestore if empty
-  Future<void> _seedFirestoreIfEmpty() async {
+  Future<void> seedFirestoreIfEmpty() async {
     if (_firestore == null) return;
     try {
       final snapshot = await _firestore.collection('songs').limit(1).get();
@@ -39,8 +39,7 @@ class SongRepository {
   Future<List<SongModel>> getAllSongs({String? currentUserId, bool forceRefresh = false}) async {
     if (_firestore != null && (!_catalogLoaded || forceRefresh)) {
       try {
-        await _seedFirestoreIfEmpty().timeout(const Duration(seconds: 3));
-        final snapshot = await _firestore.collection('songs').get().timeout(const Duration(seconds: 4));
+        final snapshot = await _firestore.collection('songs').get().timeout(const Duration(seconds: 8));
         if (snapshot.docs.isNotEmpty) {
           final songs = snapshot.docs.map((doc) {
             return SongModel.fromMap(doc.data(), doc.id);

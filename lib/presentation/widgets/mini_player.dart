@@ -22,8 +22,11 @@ class MiniPlayer extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
-        final progress = (state.duration.inMilliseconds > 0)
-            ? (state.position.inMilliseconds / state.duration.inMilliseconds).clamp(0.0, 1.0)
+        final totalDuration = (state.duration > Duration.zero)
+            ? state.duration
+            : Duration(seconds: currentSong.duration);
+        final progress = (totalDuration.inMilliseconds > 0)
+            ? (state.position.inMilliseconds / totalDuration.inMilliseconds).clamp(0.0, 1.0)
             : 0.0;
 
         return GestureDetector(

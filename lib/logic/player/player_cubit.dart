@@ -79,9 +79,19 @@ class PlayerCubit extends Cubit<PlayerState> {
       queue: effectiveQueue,
       currentIndex: targetIndex,
       isBuffering: true,
+      duration: Duration(seconds: song.duration),
+      position: Duration.zero,
+      errorMessage: null,
     ));
 
-    await _audioService.loadQueueAndPlay(effectiveQueue, initialIndex: targetIndex);
+    try {
+      await _audioService.loadQueueAndPlay(effectiveQueue, initialIndex: targetIndex);
+    } catch (e) {
+      emit(state.copyWith(
+        isBuffering: false,
+        errorMessage: 'Không thể kết nối luồng phát: $e',
+      ));
+    }
   }
 
   Future<void> playPlaylist(List<SongModel> songs, {int startIndex = 0, bool shuffle = false}) async {
@@ -95,16 +105,27 @@ class PlayerCubit extends Cubit<PlayerState> {
       targetIndex = 0;
     }
 
+    final initialSong = effectiveSongs[targetIndex];
     emit(state.copyWith(
-      currentSong: effectiveSongs[targetIndex],
+      currentSong: initialSong,
       queue: effectiveSongs,
       currentIndex: targetIndex,
       isShuffle: shuffle,
       isBuffering: true,
+      duration: Duration(seconds: initialSong.duration),
+      position: Duration.zero,
+      errorMessage: null,
     ));
 
     await _audioService.setShuffle(shuffle);
-    await _audioService.loadQueueAndPlay(effectiveSongs, initialIndex: targetIndex);
+    try {
+      await _audioService.loadQueueAndPlay(effectiveSongs, initialIndex: targetIndex);
+    } catch (e) {
+      emit(state.copyWith(
+        isBuffering: false,
+        errorMessage: 'Không thể kết nối luồng phát: $e',
+      ));
+    }
   }
 
   Future<void> playPause() async {

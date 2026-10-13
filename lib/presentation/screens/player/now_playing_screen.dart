@@ -41,6 +41,9 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
 
         final size = MediaQuery.of(context).size;
         final artworkSize = size.width * 0.78;
+        final totalDuration = (state.duration > Duration.zero)
+            ? state.duration
+            : Duration(seconds: currentSong.duration);
 
         return Scaffold(
           backgroundColor: AppColors.background,
@@ -82,17 +85,27 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
                             ),
                           ],
                         ),
-                        IconButton(
-                          icon: Icon(
-                            _showVinylMode ? Icons.image : Icons.album,
-                            color: _showVinylMode ? AppColors.primary : AppColors.textSecondary,
-                          ),
-                          tooltip: _showVinylMode ? 'Xem ảnh bìa' : 'Xem đĩa xoay vinyl',
-                          onPressed: () {
-                            setState(() {
-                              _showVinylMode = !_showVinylMode;
-                            });
-                          },
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.queue_music, color: AppColors.textSecondary),
+                              tooltip: 'Danh sách chờ phát',
+                              onPressed: () => _showQueueModal(context, state),
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                _showVinylMode ? Icons.image : Icons.album,
+                                color: _showVinylMode ? AppColors.primary : AppColors.textSecondary,
+                              ),
+                              tooltip: _showVinylMode ? 'Xem ảnh bìa' : 'Xem đĩa xoay vinyl',
+                              onPressed: () {
+                                setState(() {
+                                  _showVinylMode = !_showVinylMode;
+                                });
+                              },
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -231,7 +244,7 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
                     ProgressSlider(
                       position: state.position,
                       bufferedPosition: state.bufferedPosition,
-                      totalDuration: state.duration,
+                      totalDuration: totalDuration,
                       onSeek: (position) => context.read<PlayerCubit>().seek(position),
                     ),
 
