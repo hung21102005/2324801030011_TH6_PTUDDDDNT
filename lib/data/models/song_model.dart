@@ -67,16 +67,24 @@ class SongModel extends Equatable {
   }
 
   factory SongModel.fromMap(Map<String, dynamic> map, [String? docId]) {
+    int parsedDuration = 0;
+    final rawDuration = map['duration'];
+    if (rawDuration is num) {
+      parsedDuration = rawDuration.toInt();
+    } else if (rawDuration is String) {
+      parsedDuration = int.tryParse(rawDuration) ?? 0;
+    }
+
     return SongModel(
-      id: docId ?? (map['id'] as String? ?? ''),
-      title: map['title'] as String? ?? 'Không tên',
-      artist: map['artist'] as String? ?? 'Nghệ sĩ ẩn danh',
-      audioUrl: map['audioUrl'] as String? ?? '',
-      thumbnailUrl: map['thumbnailUrl'] as String? ?? '',
-      duration: (map['duration'] as num?)?.toInt() ?? 0,
-      genre: map['genre'] as String? ?? 'Khác',
-      album: map['album'] as String? ?? '',
-      isFavorite: map['isFavorite'] as bool? ?? false,
+      id: docId ?? (map['id']?.toString() ?? ''),
+      title: map['title']?.toString() ?? 'Không tên',
+      artist: map['artist']?.toString() ?? 'Nghệ sĩ ẩn danh',
+      audioUrl: map['audioUrl']?.toString() ?? '',
+      thumbnailUrl: map['thumbnailUrl']?.toString() ?? '',
+      duration: parsedDuration,
+      genre: map['genre']?.toString() ?? 'Khác',
+      album: map['album']?.toString() ?? '',
+      isFavorite: map['isFavorite'] == true,
     );
   }
 

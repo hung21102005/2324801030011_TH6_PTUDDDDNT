@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
 import '../../data/models/song_model.dart';
@@ -17,8 +19,15 @@ class PositionData {
 
 class AudioPlayerService {
   final AudioPlayer _player = AudioPlayer();
+  final Random _random = Random();
+  StreamSubscription? _playerStateSubscription;
+
   List<SongModel> _playlist = [];
   int _currentIndex = 0;
+
+  final BehaviorSubject<int?> _currentIndexSubject = BehaviorSubject<int?>.seeded(null);
+  final BehaviorSubject<bool> _shuffleSubject = BehaviorSubject<bool>.seeded(false);
+  final BehaviorSubject<LoopMode> _loopModeSubject = BehaviorSubject<LoopMode>.seeded(LoopMode.off);
 
   AudioPlayer get player => _player;
   List<SongModel> get playlist => _playlist;
@@ -41,27 +50,36 @@ class AudioPlayerService {
       );
 
   Stream<PlayerState> get playerStateStream => _player.playerStateStream;
-  Stream<int?> get currentIndexStream => _player.currentIndexStream;
+  Stream<int?> get currentIndexStream => _currentIndexSubject.stream;
   Stream<bool> get playingStream => _player.playingStream;
-  Stream<LoopMode> get loopModeStream => _player.loopModeStream;
-  Stream<bool> get shuffleModeEnabledStream => _player.shuffleModeEnabledStream;
+  Stream<LoopMode> get loopModeStream => _loopModeSubject.stream;
+  Stream<bool> get shuffleModeEnabledStream => _shuffleSubject.stream;
 
   AudioPlayerService() {
-    _player.currentIndexStream.listen((index) {
-      if (index != null && index >= 0 && index < _playlist.length) {
-        _currentIndex = index;
-      }
-    });
-
-    // Auto next handling when song ends
-    _player.playerStateStream.listen((state) {
+    _playerStateSubscription = _player.playerStateStream.listen((state) {
       if (state.processingState == ProcessingState.completed) {
-        if (_player.loopMode == LoopMode.off && _currentIndex >= _playlist.length - 1) {
-          _player.pause();
-          _player.seek(Duration.zero, index: 0);
-        }
+        _handleTrackCompleted();
       }
     });
+  }
+
+  Future<void> _handleTrackCompleted() async {
+    final loopMode = _loopModeSubject.value;
+    if (loopMode == LoopMode.one) {
+      await _player.seek(Duration.zero);
+      await _player.play();
+    } else if (loopMode == LoopMode.all) {
+      await skipToNext();
+    } else {
+      // LoopMode.off
+      if (_currentIndex < _playlist.length - 1) {
+        await skipToNext();
+      } else {
+        // End of playlist
+        await _player.pause();
+        await _player.seek(Duration.zero);
+      }
+    }
   }
 
   Future<void> loadQueueAndPlay(List<SongModel> songs, {int initialIndex = 0}) async {
@@ -69,31 +87,23 @@ class AudioPlayerService {
 
     _playlist = List.from(songs);
     _currentIndex = (initialIndex >= 0 && initialIndex < songs.length) ? initialIndex : 0;
+    _currentIndexSubject.add(_currentIndex);
+
+    await _playCurrentTrack();
+  }
+
+  Future<void> _playCurrentTrack() async {
+    if (_playlist.isEmpty || _currentIndex < 0 || _currentIndex >= _playlist.length) return;
+
+    final song = _playlist[_currentIndex];
+    _currentIndexSubject.add(_currentIndex);
 
     try {
-      final audioSources = _playlist.map((song) {
-        return AudioSource.uri(
-          Uri.parse(song.audioUrl),
-          tag: song,
-        );
-      }).toList();
-
-      await _player.setAudioSources(
-        audioSources,
-        initialIndex: _currentIndex,
-        initialPosition: Duration.zero,
-      );
-
+      await _player.stop();
+      await _player.setUrl(song.audioUrl);
       await _player.play();
     } catch (e) {
-      // Fallback single audio source if concatenating encounters stream source error
-      try {
-        final current = _playlist[_currentIndex];
-        await _player.setUrl(current.audioUrl);
-        await _player.play();
-      } catch (innerError) {
-        // ignore
-      }
+      debugPrint('Error playing ${song.title} (${song.audioUrl}): $e');
     }
   }
 
@@ -114,49 +124,64 @@ class AudioPlayerService {
   }
 
   Future<void> skipToNext() async {
-    if (_player.hasNext) {
-      await _player.seekToNext();
-    } else if (_playlist.isNotEmpty) {
-      // Loop to beginning if playlist allows
-      await _player.seek(Duration.zero, index: 0);
-      await _player.play();
+    if (_playlist.isEmpty) return;
+
+    if (_shuffleSubject.value && _playlist.length > 1) {
+      int nextIndex;
+      do {
+        nextIndex = _random.nextInt(_playlist.length);
+      } while (nextIndex == _currentIndex);
+      _currentIndex = nextIndex;
+    } else {
+      _currentIndex = (_currentIndex + 1) % _playlist.length;
     }
+
+    await _playCurrentTrack();
   }
 
   Future<void> skipToPrevious() async {
-    if (_player.hasPrevious) {
-      await _player.seekToPrevious();
-    } else if (_player.position.inSeconds > 3) {
-      // Replay current song from start if played > 3 seconds
+    if (_playlist.isEmpty) return;
+
+    if (_player.position.inSeconds > 3) {
       await _player.seek(Duration.zero);
-    } else if (_playlist.isNotEmpty) {
-      await _player.seek(Duration.zero, index: _playlist.length - 1);
+      return;
     }
+
+    _currentIndex = (_currentIndex - 1 + _playlist.length) % _playlist.length;
+    await _playCurrentTrack();
+  }
+
+  Future<void> setShuffle(bool enable) async {
+    _shuffleSubject.add(enable);
   }
 
   Future<void> toggleShuffle() async {
-    final enable = !_player.shuffleModeEnabled;
-    if (enable) {
-      await _player.shuffle();
-    }
-    await _player.setShuffleModeEnabled(enable);
+    _shuffleSubject.add(!_shuffleSubject.value);
+  }
+
+  Future<void> setLoopMode(LoopMode mode) async {
+    _loopModeSubject.add(mode);
   }
 
   Future<void> toggleRepeat() async {
-    switch (_player.loopMode) {
+    switch (_loopModeSubject.value) {
       case LoopMode.off:
-        await _player.setLoopMode(LoopMode.all);
+        _loopModeSubject.add(LoopMode.all);
         break;
       case LoopMode.all:
-        await _player.setLoopMode(LoopMode.one);
+        _loopModeSubject.add(LoopMode.one);
         break;
       case LoopMode.one:
-        await _player.setLoopMode(LoopMode.off);
+        _loopModeSubject.add(LoopMode.off);
         break;
     }
   }
 
   Future<void> dispose() async {
+    await _playerStateSubscription?.cancel();
+    await _currentIndexSubject.close();
+    await _shuffleSubject.close();
+    await _loopModeSubject.close();
     await _player.dispose();
   }
 }

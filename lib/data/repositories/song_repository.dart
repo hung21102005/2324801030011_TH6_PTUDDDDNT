@@ -9,6 +9,7 @@ class SongRepository {
 
   // In-memory catalog
   List<SongModel> _catalogSongs = List.from(AppConstants.mockSongs);
+  bool _catalogLoaded = false;
 
   // User-isolated favorites map: key is userId / email
   final Map<String, Set<String>> _userFavorites = {};
@@ -35,8 +36,8 @@ class SongRepository {
   }
 
   // Get all songs
-  Future<List<SongModel>> getAllSongs({String? currentUserId}) async {
-    if (_firestore != null) {
+  Future<List<SongModel>> getAllSongs({String? currentUserId, bool forceRefresh = false}) async {
+    if (_firestore != null && (!_catalogLoaded || forceRefresh)) {
       try {
         await _seedFirestoreIfEmpty().timeout(const Duration(seconds: 3));
         final snapshot = await _firestore.collection('songs').get().timeout(const Duration(seconds: 4));
@@ -46,6 +47,7 @@ class SongRepository {
           }).toList();
           if (songs.isNotEmpty) {
             _catalogSongs = songs;
+            _catalogLoaded = true;
           }
         }
       } catch (_) {

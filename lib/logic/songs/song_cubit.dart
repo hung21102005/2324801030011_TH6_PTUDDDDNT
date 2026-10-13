@@ -15,9 +15,9 @@ class SongCubit extends Cubit<SongState> {
   Future<void> loadAllData(String? userId) async {
     emit(state.copyWith(isLoading: true, errorMessage: null));
     try {
-      final all = await _songRepository.getAllSongs(currentUserId: userId);
-      final trending = await _songRepository.getTrendingSongs(currentUserId: userId);
-      final recommended = await _songRepository.getRecommendedSongs(currentUserId: userId);
+      final all = await _songRepository.getAllSongs(currentUserId: userId, forceRefresh: true);
+      final trending = all.take(5).toList();
+      final recommended = all.skip(2).toList();
       final favorites = await _songRepository.getFavorites(userId);
       final playlists = await _songRepository.getUserPlaylists(userId);
 

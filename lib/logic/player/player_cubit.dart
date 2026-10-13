@@ -69,7 +69,7 @@ class PlayerCubit extends Cubit<PlayerState> {
   Future<void> playSong(SongModel song, {List<SongModel>? queue}) async {
     final effectiveQueue = (queue != null && queue.isNotEmpty)
         ? queue
-        : (state.queue.contains(song) ? state.queue : [song]);
+        : (state.queue.any((s) => s.id == song.id) ? state.queue : [song]);
 
     final songIndex = effectiveQueue.indexWhere((s) => s.id == song.id);
     final targetIndex = songIndex >= 0 ? songIndex : 0;
@@ -103,10 +103,8 @@ class PlayerCubit extends Cubit<PlayerState> {
       isBuffering: true,
     ));
 
+    await _audioService.setShuffle(shuffle);
     await _audioService.loadQueueAndPlay(effectiveSongs, initialIndex: targetIndex);
-    if (shuffle) {
-      await _audioService.toggleShuffle();
-    }
   }
 
   Future<void> playPause() async {
