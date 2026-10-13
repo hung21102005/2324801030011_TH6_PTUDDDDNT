@@ -6,16 +6,6 @@ class AppConstants {
   // Curated list of high quality songs with real working MP3 streams & gorgeous album art
   static final List<SongModel> mockSongs = [
     const SongModel(
-      id: 'song_gio_jack',
-      title: 'Sóng Gió',
-      artist: 'Jack & K-ICM',
-      audioUrl: 'https://videotourl.com/audio/1791877224660-06681f8f-77ce-486d-a316-07de4e7b83c3.mp3',
-      thumbnailUrl: 'https://tse1.mm.bing.net/th/id/OIP.Mx1Ez9x5UGudcT5fGhPmDQHaEK?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
-      duration: 254,
-      genre: 'V-Pop',
-      album: 'Sóng Gió - Single',
-    ),
-    const SongModel(
       id: 'song_1',
       title: 'Midnight City Lights',
       artist: 'Aero Chord & Melodic',
@@ -99,7 +89,6 @@ class AppConstants {
 
   static const List<String> musicGenres = [
     'Tất cả',
-    'V-Pop',
     'Chill / EDM',
     'Acoustic',
     'Synthwave',

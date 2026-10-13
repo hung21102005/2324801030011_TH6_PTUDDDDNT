@@ -16,23 +16,17 @@ class SongRepository {
   // User-isolated playlists map: key is userId / email
   final Map<String, List<PlaylistModel>> _userPlaylists = {};
 
-  // Seed Firestore if empty or missing songs
+  // Seed Firestore if empty
   Future<void> _seedFirestoreIfEmpty() async {
     if (_firestore == null) return;
     try {
-      final snapshot = await _firestore.collection('songs').get();
-      final existingIds = snapshot.docs.map((d) => d.id).toSet();
-
-      final batch = _firestore.batch();
-      bool hasNew = false;
-      for (final song in AppConstants.mockSongs) {
-        if (!existingIds.contains(song.id)) {
+      final snapshot = await _firestore.collection('songs').limit(1).get();
+      if (snapshot.docs.isEmpty) {
+        final batch = _firestore.batch();
+        for (final song in AppConstants.mockSongs) {
           final docRef = _firestore.collection('songs').doc(song.id);
           batch.set(docRef, song.toMap());
-          hasNew = true;
         }
-      }
-      if (hasNew) {
         await batch.commit();
       }
     } catch (_) {
